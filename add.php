@@ -116,8 +116,8 @@ if (isset($_GET['id'])) {
 $title_lang1 = isset($article) ? htmlspecialchars($article['title_lang1']) : "";
 $body_lang1 = isset($article) ? htmlspecialchars($article['body_lang1']) : "";
 $news_category_id = isset($article) ? htmlspecialchars($article['news_category_id']) : "";
-$image1 = isset($images) ? $images[0]['filename'] : "";
-$image2 = isset($images) ? $images[1]['filename'] : "";
+$image1 = isset($images[0]) ? $images[0]['filename'] : "";
+$image2 = isset($images[1]) ? $images[1]['filename'] : "";
 $public_date = isset($article) ? $article['public_date'] : date('Y-m-d');
 $public_end_date = isset($article) ? $article['public_end_date'] : "";
 
@@ -128,7 +128,6 @@ $public_end_date = isset($article) ? $article['public_end_date'] : "";
     <meta charset="UTF-8">
     <title>記事作成</title>
     <meta name="robots" content="noindex">
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/trix@2.0.8/dist/trix.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" href="./assets/css/style.css">
@@ -142,8 +141,8 @@ $public_end_date = isset($article) ? $article['public_end_date'] : "";
             <div class="nav">
                 <a href="./">記事一覧</a>
                 <a href="./add.php">記事作成</a>
-                <a href="#" onclick="window.open('https://test.sylvanianfamilies.com/ja-jp/news/', '_blank', 'width=1280,height=800'); return false;">プレビュー確認</a>
-                <a href="#" onclick="window.open('https://test.sylvanianfamilies.com/ja-jp/news-honban/', '_blank', 'width=1280,height=800'); return false;">本番確認</a>
+                <a href="#" onclick="window.open('https://test.sylvanianfamilies.com/ja-jp/news/', 'プレビュー確認', 'width=1280,height=800'); return false;">プレビュー確認</a>
+                <a href="#" onclick="window.open('https://test.sylvanianfamilies.com/ja-jp/news-honban/', '本番確認', 'width=1280,height=800'); return false;">本番確認</a>
                 <a href="./manual.pdf" target="_blank">マニュアル</a>
             </div>
         </div>
@@ -155,67 +154,68 @@ $public_end_date = isset($article) ? $article['public_end_date'] : "";
                 <form action="" method="post" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col m9 s12">
-                                <div class="contents-board">
-                                    <div class="input-field">
-                                        <input type="text" name="title_lang1" id="title_lang1" value="<?=$title_lang1?>" required>
-                                        <label for="title_lang1">タイトル</label>
-                                    </div>
-                                </div>
-                                <div class="contents-board">
-                                    <input id="body_lang1" type="hidden" name="body_lang1" value="<?=$body_lang1?>">
-                                    <trix-editor input="body_lang1" class="content-textarea"></trix-editor>
-                                    <div class="file-field input-field">
-                                        <div class="btn">
-                                            <span>画像 1<i class="material-icons right">image</i></span>
-                                            <input type="file" accept="image/*" name="image1" value="<?=$image1?>">
-                                        </div>
-                                        <div class="file-path-wrapper">
-                                            <input class="file-path validate" type="text" name="image1">
-                                        </div>
-                                    </div>
-                                    <div class="file-field input-field">
-                                        <div class="btn">
-                                            <span>画像 2<i class="material-icons right">image</i></span>
-                                            <input type="file" accept="image/*" name="image2" value="<?=$image2?>">
-                                        </div>
-                                        <div class="file-path-wrapper">
-                                            <input class="file-path validate" type="text" name="image2">
-                                        </div>
-                                    </div>
-                                    <p><small class="grey-text">画像アップロード先：/var/www/vhosts/test.cdn-org.sylvanianfamilies/includes_gl/img/news/ja-jp/thumbs/</small></p>
+                            <div class="contents-board">
+                                <div class="input-field">
+                                    <input type="text" name="title_lang1" id="title_lang1" value="<?=$title_lang1?>" required>
+                                    <label for="title_lang1">タイトル</label>
                                 </div>
                             </div>
-                            <div class="col m3 s12">
-                                <div class="contents-board">
-                                    <div class="input-field">
-                                        <select name="news_category_id">
-                                            <?php foreach ($categories as $category): ?>
-                                            <option value="<?=$category['id']?>" <?=$category['id']==$news_category_id?"selected":""?>><?=$category['name_lang1']?></option>
-                                            <?php endforeach ?>
-                                        </select>
-                                        <label>カテゴリー</label>
+                            <div class="contents-board">
+                                <textarea name="body_lang1" id="body_lang1" rows="10" class="content-textarea" placeholder="本文"><?= $body_lang1 ?></textarea>
+                                <div class="file-field input-field">
+                                    <div class="btn">
+                                        <span>画像 1<i class="material-icons right">image</i></span>
+                                        <input type="file" accept="image/*" name="image1" id="fileImage1">
+                                    </div>
+                                    <div class="file-path-wrapper">
+                                        <input class="file-path validate" type="text" name="image1" value="<?=$image1?>" id="image1">
+                                        <button class="btn-flat waves-effect waves-light red-text img-delete-btn" id="img-delete-btn-1"><i class="material-icons">clear</i></button>
                                     </div>
                                 </div>
-                                <div class="contents-board">
-                                    <div class="input-field">
-                                        <label for="public_date">掲載日</label>
-                                        <input type="date" name="public_date" id="public_date" value="<?=$public_date?>" required>
+                                <div class="file-field input-field">
+                                    <div class="btn">
+                                        <span>画像 2<i class="material-icons right">image</i></span>
+                                        <input type="file" accept="image/*" name="image2" id="fileImage2">
                                     </div>
-                                    <div class="input-field">
-                                        <label for="public_end_date">掲載終了日</label>
-                                        <input type="date" name="public_end_date" id="public_end_date" value="<?=$public_end_date?>">
+                                    <div class="file-path-wrapper">
+                                        <input class="file-path validate" type="text" name="image2" value="<?=$image2?>" id="image2">
+                                        <button class="btn-flat waves-effect waves-light red-text img-delete-btn" id="img-delete-btn-2"><i class="material-icons">clear</i></button>
                                     </div>
                                 </div>
-                                <div class="publish-btn"><button class="btn-large waves-effect waves-light" type="submit" name="action"><span>テスト投稿<i class="material-icons right">send</i></span></button></div>
+                                <p><small class="grey-text">画像アップロード先：/var/www/vhosts/test.cdn-org.sylvanianfamilies/includes_gl/img/news/ja-jp/thumbs/</small></p>
                             </div>
                         </div>
-                    </form>
+                        <div class="col m3 s12">
+                            <div class="contents-board">
+                                <div class="input-field">
+                                    <select name="news_category_id">
+                                        <?php foreach ($categories as $category): ?>
+                                        <option value="<?=$category['id']?>" <?=$category['id']==$news_category_id?"selected":""?>><?=$category['name_lang1']?></option>
+                                        <?php endforeach ?>
+                                    </select>
+                                    <label>カテゴリー</label>
+                                </div>
+                            </div>
+                            <div class="contents-board">
+                                <div class="input-field">
+                                    <label for="public_date">掲載日</label>
+                                    <input type="date" name="public_date" id="public_date" value="<?=$public_date?>" required>
+                                </div>
+                                <div class="input-field">
+                                    <label for="public_end_date">掲載終了日</label>
+                                    <input type="date" name="public_end_date" id="public_end_date" value="<?=$public_end_date?>">
+                                </div>
+                            </div>
+                            <div class="publish-btn"><button class="btn-large waves-effect waves-light" type="submit" name="action"><span>テスト投稿<i class="material-icons right">send</i></span></button></div>
+                        </div>
+                    </div>
+                </form>
             </div>
         </main>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <script type="text/javascript" src="https://unpkg.com/trix@2.0.8/dist/trix.umd.min.js"></script>
     <script src="./assets/js/hamburger.js"></script>
+    <script src="./assets/js/deleteImage.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var elems = document.querySelectorAll('select');    

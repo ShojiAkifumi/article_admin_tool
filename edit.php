@@ -41,6 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
     $title_lang1 = $_POST['title_lang1'];
     $body_lang1 = $_POST['body_lang1'];
     $news_category_id = $_POST['news_category_id'];
+    $image1 = $_POST['image1'] ? $_POST['image1'] : "";
+    $image2 = $_POST['image2'] ? $_POST['image2'] : "";
     $nsort = 0;
     $public_date = $_POST['public_date'];
     $public_end_date = $_POST['public_end_date'] ? $_POST['public_end_date'] : null;
@@ -90,18 +92,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
 
     // 画像アップロード処理 名前被りは上書き
     if (isset($_FILES['image1']) && $_FILES['image1']['error'] === UPLOAD_ERR_OK) {
-        $image1 = $_POST['image1'];
         move_uploaded_file($_FILES['image1']['tmp_name'], $imgPath.$image1);
-        $stmt = $pdo->prepare("UPDATE ck_news_images SET filename = ? WHERE id = ?");
-        $stmt->execute([$image1, $images[0]['id']]);
     }
+    $stmt = $pdo->prepare("UPDATE ck_news_images SET filename = ? WHERE id = ?");
+    $stmt->execute([$image1, $images[0]['id']]);
+    
     if (isset($_FILES['image2']) && $_FILES['image2']['error'] === UPLOAD_ERR_OK) {
-        $image2 = $_POST['image2'];
         move_uploaded_file($_FILES['image2']['tmp_name'], $imgPath.$image2);
-        $stmt = $pdo->prepare("UPDATE ck_news_images SET filename = ? WHERE id = ?");
-        $stmt->execute([$image2, $images[1]['id']]);
     }
-
+    $stmt = $pdo->prepare("UPDATE ck_news_images SET filename = ? WHERE id = ?");
+    $stmt->execute([$image2, $images[1]['id']]);
+    
     header('Location: index.php?q=edit');
     exit;
 }
@@ -112,7 +113,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
     <meta charset="UTF-8">
     <title>記事編集</title>
     <meta name="robots" content="noindex">
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/trix@2.0.8/dist/trix.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" href="./assets/css/style.css">
@@ -126,8 +126,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
             <div class="nav">
                 <a href="./">記事一覧</a>
                 <a href="./add.php">記事作成</a>
-                <a href="#" onclick="window.open('https://test.sylvanianfamilies.com/ja-jp/news/', '_blank', 'width=1280,height=800'); return false;">プレビュー確認</a>
-                <a href="#" onclick="window.open('https://test.sylvanianfamilies.com/ja-jp/news-honban/', '_blank', 'width=1280,height=800'); return false;">本番確認</a>
+                <a href="#" onclick="window.open('https://test.sylvanianfamilies.com/ja-jp/news/', 'プレビュー確認', 'width=1280,height=800'); return false;">プレビュー確認</a>
+                <a href="#" onclick="window.open('https://test.sylvanianfamilies.com/ja-jp/news-honban/', '本番確認', 'width=1280,height=800'); return false;">本番確認</a>
                 <a href="./manual.pdf" target="_blank">マニュアル</a>
             </div>
         </div>
@@ -148,25 +148,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
                                 </div>
                             </div>
                             <div class="contents-board">
-
-                                <input id="body_lang1" value="<?= htmlspecialchars($article['body_lang1']) ?>" type="hidden" name="body_lang1">
-                                <trix-editor input="body_lang1" class="content-textarea"></trix-editor>
+                                <textarea name="body_lang1" id="body_lang1" rows="10" class="content-textarea" placeholder="本文"><?= htmlspecialchars($article['body_lang1']) ?></textarea>
                                 <div class="file-field input-field">
                                     <div class="btn">
                                         <span>画像 1<i class="material-icons right">image</i></span>
-                                        <input type="file" accept="image/*" name="image1">
+                                        <input type="file" accept="image/*" name="image1" id="fileImage1">
                                     </div>
                                     <div class="file-path-wrapper">
-                                        <input class="file-path validate" type="text" name="image1" value="<?=$images[0]['filename']?>">
+                                        <input class="file-path validate" type="text" name="image1" value="<?=$images[0]['filename']?>" id="image1">
+                                        <button class="btn-flat waves-effect waves-light red-text img-delete-btn" id="img-delete-btn-1"><i class="material-icons">clear</i></button>
                                     </div>
                                 </div>
                                 <div class="file-field input-field">
                                     <div class="btn">
                                         <span>画像 2<i class="material-icons right">image</i></span>
-                                        <input type="file" accept="image/*" name="image2">
+                                        <input type="file" accept="image/*" name="image2" id="fileImage2">
                                     </div>
                                     <div class="file-path-wrapper">
-                                        <input class="file-path validate" type="text" name="image2" value="<?=$images[1]['filename']?>">
+                                        <input class="file-path validate" type="text" name="image2" value="<?=$images[1]['filename']?>" id="image2">
+                                        <button class="btn-flat waves-effect waves-light red-text img-delete-btn" id="img-delete-btn-2"><i class="material-icons">clear</i></button>
                                     </div>
                                 </div>
                                 <p><small class="grey-text">画像アップロード先：/var/www/vhosts/test.cdn-org.sylvanianfamilies/includes_gl/img/news/ja-jp/thumbs/</small></p>
@@ -201,8 +201,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
         </main>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <script type="text/javascript" src="https://unpkg.com/trix@2.0.8/dist/trix.umd.min.js"></script>
     <script src="./assets/js/hamburger.js"></script>
+    <script src="./assets/js/deleteImage.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var elems = document.querySelectorAll('select');    

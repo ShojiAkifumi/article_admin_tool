@@ -23,8 +23,8 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="nav">
                 <a href="./">記事一覧</a>
                 <a href="./add.php">記事作成</a>
-                <a href="#" onclick="window.open('https://test.sylvanianfamilies.com/ja-jp/news/', '_blank', 'width=1280,height=800'); return false;">プレビュー確認</a>
-                <a href="#" onclick="window.open('https://test.sylvanianfamilies.com/ja-jp/news-honban/', '_blank', 'width=1280,height=800'); return false;">本番確認</a>
+                <a href="#" onclick="window.open('https://test.sylvanianfamilies.com/ja-jp/news/', 'プレビュー確認', 'width=1280,height=800'); return false;">プレビュー確認</a>
+                <a href="#" onclick="window.open('https://test.sylvanianfamilies.com/ja-jp/news-honban/', '本番確認', 'width=1280,height=800'); return false;">本番確認</a>
                 <a href="./manual.pdf" target="_blank">マニュアル</a>
             </div>
         </div>
